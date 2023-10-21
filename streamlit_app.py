@@ -1,36 +1,38 @@
 import streamlit as st
-from streamlit_auth import Auth
+import bcrypt
 
 def main():
     st.title("Streaming App")
     
-    # Configuración de autenticación
-    auth = Auth(app_name="Streaming App")
-    auth.login()
-    
-    # Página de inicio
-    if st.sidebar.button("Inicio"):
+    # Check if user is logged in
+    if "username" not in st.session_state:
+        show_login_page()
+    else:
         show_homepage()
+
+def show_login_page():
+    st.header("Login")
     
-    # Página de películas
-    if st.sidebar.button("Películas"):
-        show_movies()
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
     
-    # Página de series
-    if st.sidebar.button("Series"):
-        show_tv_shows()
+    if st.button("Login"):
+        # Check if username and password are valid
+        if check_credentials(username, password):
+            st.session_state["username"] = username
+            st.success("Login successful!")
+        else:
+            st.error("Invalid username or password")
+
+def check_credentials(username, password):
+    # You can replace this with your own authentication logic
+    # For simplicity, we're using a hardcoded username and password
+    hashed_password = b'$2b$12$3X3Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6Z6'
+    return bcrypt.checkpw(password.encode(), hashed_password)
 
 def show_homepage():
-    st.header("Bienvenido a la página de inicio")
-    # Aquí puedes agregar contenido relacionado con la página de inicio
-
-def show_movies():
-    st.header("Películas")
-    # Aquí puedes agregar contenido relacionado con la página de películas
-
-def show_tv_shows():
-    st.header("Series")
-    # Aquí puedes agregar contenido relacionado con la página de series
+    st.header(f"Welcome, {st.session_state['username']}!")
+    # Add content for the homepage here
 
 if __name__ == "__main__":
     main()
